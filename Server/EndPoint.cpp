@@ -210,7 +210,6 @@ void EndPoint::execute_thread()
             }
 
             c->start_thread();
-            c->set_all_games(&games);
             clients.push_back(c);
         }
     }

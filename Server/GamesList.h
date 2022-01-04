@@ -10,6 +10,7 @@ private:
     GamesList();
     static GamesList* singleton_;
     std::vector<Game*> allGames_;
+    ~GamesList();
 
 
 public:
@@ -17,10 +18,9 @@ public:
     void operator=(const GamesList & gamesList) = delete; // TODO see in details
     static GamesList *GetInstance();
 
-    void newGame();
+    int newGame();
     std::vector<Game*> getAllGames();
     Game* getGame(int gameId);
-    char* getNameByPosition(int);
     bool hasGame(int gameId);
 };
 

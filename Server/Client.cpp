@@ -18,6 +18,7 @@
 #endif
 #include <iostream>
 #include <thread>
+#include <string>
 #include "ThreadedSocket.h"
 #include "Client.h"
 #include "Output.h"
@@ -131,22 +132,71 @@ void Client::execute_thread()
 			time(&time_value);
 			time_info = localtime(&time_value);
 
+            std::string fullCmd(buffer);
+            std::size_t sepPos = fullCmd.find(";");
+            std::string cmdName;
+            std::string cmdBody;
+            if (sepPos != std::string::npos) {
+                cmdName = fullCmd.substr(0, sepPos);
+                cmdBody = fullCmd.substr(sepPos+1);
+            } else {
+                cmdName = fullCmd;
+            }
+
 			// Traitement du message reçu
-            if (strcmp(buffer, "NEW_GAME") == 0) {
-                sprintf(buffer, "Creating new game...");
+            if (cmdName == "NEW_GAME") {
+                int newGameId = GamesList::GetInstance()->newGame();
+                sprintf(buffer, "%s", std::to_string(newGameId).c_str());
             }
-            else if (strcmp(buffer, "GET_GAMES") == 0) {
+
+            else if (cmdName == "GET_GAMES") {
                 // Get all games
-                GamesList::GetInstance()->newGame();
-                //Game* game= GamesList::GetInstance()->getGameByPosition(0);
-                // int i = GamesList::GetInstance()->allGames_.at(0)->id;
-                // Output::GetInstance()->print(output_prefix, i, "\n");
+                std::string gamesList = "";
                 for (Game *game: GamesList::GetInstance()->getAllGames()) {
-                    Output::GetInstance()->print(output_prefix, game->name, "\n");
+                    gamesList += std::to_string(game->id) + ",";
                 }
-                sprintf(buffer, "Getting all games...");
+                if (gamesList == "") {
+                    gamesList = "no game was found";
+                }
+
+                sprintf(buffer, "%s", gamesList.c_str());
             }
-			else if (strcmp(buffer, "DATE") == 0)
+
+            else if (cmdName == "JOIN") {
+                Game* game = GamesList::GetInstance()->getGame(std::stoi(cmdBody));
+                Output::GetInstance()->print("\n", game->id, "\n");
+                game->addPlayer(this);
+
+                std::string clientList = "";
+                for (Client *client: game->getClients()) {
+                    clientList += std::to_string(client->id) + ","; // TODO replace
+                }
+                if (clientList == "") {
+                    clientList = "no game was found";
+                }
+
+                sprintf(buffer, clientList.c_str());
+
+                // TODO renvoyer user list (corriger bug)
+            }
+
+            else if (strcmp(buffer, "USER_DETAILS") == 0) {}  // TODO nope
+
+            else if (strcmp(buffer, "PLAY_PUT_DOWN") == 0) {}
+
+            else if (strcmp(buffer, "PLAY_PICK") == 0) {}
+
+            else if (strcmp(buffer, "PLAY_UNO") == 0) {}
+
+            else if (strcmp(buffer, "PLAY_CONTRE_UNO") == 0) {}
+
+            else if (strcmp(buffer, "RESPONSE_UNO") == 0) {} // TODO nope
+
+            else if (strcmp(buffer, "GAME_STATUS") == 0) {} // TODO nope
+
+            else if (strcmp(buffer, "ERROR") == 0) {} // TODO nope
+
+            else if (strcmp(buffer, "DATE") == 0)
 				strftime(buffer, MAXDATASIZE, "%e/%m/%Y", time_info);
 			else if (strcmp(buffer, "DAY") == 0)
 				strftime(buffer, MAXDATASIZE, "%A", time_info);
@@ -169,8 +219,4 @@ void Client::execute_thread()
 	}
 
 	end_thread();
-}
-
-void Client::set_all_games(std::vector<Game*>* gamesList) {
-    allGames = gamesList;
 }

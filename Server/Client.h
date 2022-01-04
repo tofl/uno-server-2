@@ -20,7 +20,6 @@
 #endif
 #include <thread>
 #include "ThreadedSocket.h"
-#include "Game.h"
 
 class Client : public ThreadedSocket
 {
@@ -42,11 +41,9 @@ public:
 #endif
 	~Client();
 	void end_thread();
-    void set_all_games(std::vector<Game*>*);
 
 private:
-    Game* currentGame; // TODO change to an id ??
-    std::vector<Game*>* allGames;
+    int currentGameId; // TODO change to an id ??
 };
 
 #endif

@@ -15,10 +15,17 @@ GamesList::GamesList()
 {
 }
 
-void GamesList::newGame() {
-    Game* newGame = new Game();
-    // allGames_->push_back(&newGame);
-    allGames_.insert(allGames_.end(), newGame); // TODO check
+GamesList::~GamesList() {
+    for (Game* game: allGames_) {
+        delete game;
+    }
+}
+
+int GamesList::newGame() {
+    int newId = allGames_.size();
+    Game* newGame = new Game(newId);
+    allGames_.insert(allGames_.end(), newGame);
+    return newId;
 }
 
 std::vector<Game*> GamesList::getAllGames() {
@@ -41,8 +48,4 @@ Game* GamesList::getGame(int gameId) {
             return game; // TODO vérifier que le pointeur est renvoyé
         }
     }
-}
-
-char* GamesList::getNameByPosition(int i){
-    return allGames_.at(i)->name;
 }
