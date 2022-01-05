@@ -157,6 +157,8 @@ void Client::execute_thread()
                 }
                 if (gamesList == "") {
                     gamesList = "no game was found";
+                } else {
+                    gamesList.pop_back();
                 }
 
                 sprintf(buffer, "%s", gamesList.c_str());
@@ -164,27 +166,43 @@ void Client::execute_thread()
 
             else if (cmdName == "JOIN") {
                 Game* game = GamesList::GetInstance()->getGame(std::stoi(cmdBody));
-                Output::GetInstance()->print("\n", game->id, "\n");
                 game->addPlayer(this);
+                currentGameId = game->id;
 
                 std::string clientList = "";
                 for (Client *client: game->getClients()) {
-                    clientList += std::to_string(client->id) + ","; // TODO replace
+                    clientList += std::to_string(client->id) + ",";
                 }
                 if (clientList == "") {
                     clientList = "no game was found";
+                } else {
+                    clientList.pop_back();
                 }
 
-                sprintf(buffer, clientList.c_str());
+                // On envoie à chaque client la liste de nouveaux joueurs et leurs cartes
+                for (Client *client: game->getClients()) {
+                    client->send_message(clientList.c_str());
+                }
 
-                // TODO renvoyer user list (corriger bug)
+                // Sélectionner 7 cartes
+                std::string cardListString = "";
+                for (int i = 0; i < 7; i++) {
+                    std::string card = game->pickRandomCard();
+                    cards.push_back(card);
+                    cardListString += card + ",";
+                }
+
+                send_message(cardListString.c_str());
             }
 
             else if (strcmp(buffer, "USER_DETAILS") == 0) {}  // TODO nope
 
             else if (strcmp(buffer, "PLAY_PUT_DOWN") == 0) {}
 
-            else if (strcmp(buffer, "PLAY_PICK") == 0) {}
+            else if (strcmp(buffer, "PLAY_PICK") == 0) {
+                Game* game = GamesList::GetInstance()->getGame(currentGameId);
+                game->pickRandomCard();
+            }
 
             else if (strcmp(buffer, "PLAY_UNO") == 0) {}
 
@@ -196,12 +214,6 @@ void Client::execute_thread()
 
             else if (strcmp(buffer, "ERROR") == 0) {} // TODO nope
 
-            else if (strcmp(buffer, "DATE") == 0)
-				strftime(buffer, MAXDATASIZE, "%e/%m/%Y", time_info);
-			else if (strcmp(buffer, "DAY") == 0)
-				strftime(buffer, MAXDATASIZE, "%A", time_info);
-			else if (strcmp(buffer, "MONTH") == 0)
-				strftime(buffer, MAXDATASIZE, "%B", time_info);
 			else
 				sprintf(buffer, "%s is not recognized as a valid command", buffer);
 

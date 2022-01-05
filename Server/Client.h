@@ -43,7 +43,8 @@ public:
 	void end_thread();
 
 private:
-    int currentGameId; // TODO change to an id ??
+    int currentGameId;
+    std::vector<std::string> cards;
 };
 
 #endif

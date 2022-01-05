@@ -13,9 +13,11 @@ public:
     int id;
     void addPlayer(Client *client);
     std::vector<Client*> getClients();
+    std::string pickRandomCard();
 
 private:
     std::vector<Client*> players_;
+    std::vector<std::string> availableCards_;
 };
 
 #endif //SOCKETS_WITH_THREAD_GAME_H
