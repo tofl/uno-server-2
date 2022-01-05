@@ -193,6 +193,8 @@ void Client::execute_thread()
                 }
 
                 send_message(cardListString.c_str());
+
+                // TODO vérifier que les deux messages sont reçus par le client
             }
 
             else if (strcmp(buffer, "USER_DETAILS") == 0) {}  // TODO nope
