@@ -14,10 +14,18 @@ public:
     void addPlayer(Client *client);
     std::vector<Client*> getClients();
     std::string pickRandomCard();
+    std::string getLastCard();
+    void putDownCard(std::string);
+    void setCurrentColor(std::string);
+    std::string getCardColor(std::string);
+    std::string getCurrentColor();
+    bool actionIsLegal(std::string);
 
 private:
     std::vector<Client*> players_;
     std::vector<std::string> availableCards_;
+    std::string lastCard_;
+    std::string currentColor_;
 };
 
 #endif //SOCKETS_WITH_THREAD_GAME_H

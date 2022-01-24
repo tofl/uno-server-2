@@ -41,6 +41,8 @@ public:
 #endif
 	~Client();
 	void end_thread();
+    int cardIndex(std::string);
+    void removeCardFromHand(int); // TODO implement
 
 private:
     int currentGameId;

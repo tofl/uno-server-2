@@ -4,7 +4,7 @@ Game::Game(int gameId) {
     id = gameId;
 
     // Création du jeu de cartes
-    availableCards_ = {
+    availableCards_ = { // G = vert, Y = jaune, R = rouge, B = bleu
         "G0",
         "G1",
         "G1",
@@ -105,7 +105,7 @@ Game::Game(int gameId) {
         "R_INVERT",
         "B_INVERT",
         "B_INVERT",
-        "JOKER", // Permet de choisir la couleur
+        "JOKER", // Permet de choisir la couleur TODO peut être que la couleur choisie pourrait être annotée au nom de la carte (style Y_JOKER pour choisir du yellow)
         "JOKER",
         "JOKER",
         "JOKER",
@@ -114,6 +114,9 @@ Game::Game(int gameId) {
         "SUPERJOKER",
         "SUPERJOKER"
     };
+
+    lastCard_ = "";
+    currentColor_ = "";
 }
 
 void Game::addPlayer(Client *client) {
@@ -129,4 +132,44 @@ std::string Game::pickRandomCard() {
     std::string returnedCard = availableCards_[randomIndex];
     availableCards_.erase(availableCards_.begin() + randomIndex);
     return returnedCard;
+}
+
+void Game::putDownCard(std::string card) {
+    lastCard_ = card;
+}
+
+std::string Game::getLastCard() {
+    return lastCard_;
+}
+
+std::string Game::getCardColor(std::string cardName) {
+    std::string firstLetter = std::to_string(cardName[0]);
+
+    if (firstLetter != "G" || firstLetter != "Y" || firstLetter != "R" || firstLetter != "B") {
+        return "";
+    }
+
+    return firstLetter;
+}
+
+void Game::setCurrentColor(std::string cardName) {
+    currentColor_ = getCardColor(cardName);
+}
+
+std::string Game::getCurrentColor() {
+    return currentColor_;
+}
+
+bool Game::actionIsLegal(std::string cardName) {
+    std::string cardColor = getCardColor(cardName);
+
+    // La carte n'a pas de couleur, elle peut être jouée à tout moment (?)
+    if (cardColor == "") {
+        return true;
+    }
+
+    if (cardColor == currentColor_) {
+        return true;
+    }
+    return false;
 }

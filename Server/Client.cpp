@@ -99,6 +99,27 @@ void Client::end_thread()
 	ThreadedSocket::end_thread();
 }
 
+int Client::cardIndex(std::string cardName) {
+    int cardIndex = -1;
+    for (int i = 0; i < cards.size(); i++) {
+        if (cards[i] == cardName) {
+            cardIndex = i;
+        }
+    }
+
+    return cardIndex;
+}
+
+void Client::removeCardFromHand(int cardIndex) {
+    /*
+    int randomIndex = rand() % availableCards_.size();
+    std::string returnedCard = availableCards_[randomIndex];
+    availableCards_.erase(availableCards_.begin() + randomIndex);
+    return returnedCard;
+     */
+    cards.erase(cards.begin() + cardIndex);
+}
+
 void Client::execute_thread()
 {
 	int length;
@@ -124,6 +145,9 @@ void Client::execute_thread()
 		// Affichage du message
 		Output::GetInstance()->print(output_prefix, "Message received : ", buffer, "\n");
 
+        // On considère que l'action menée est illégale jusqu'à preuve du contraire
+        bool moveWasSuccessful = false;
+
 		if (strcmp(buffer, "DISCONNECT") == 0) {
 			break;
 		}
@@ -147,6 +171,7 @@ void Client::execute_thread()
             if (cmdName == "NEW_GAME") {
                 int newGameId = GamesList::GetInstance()->newGame();
                 sprintf(buffer, "%s", std::to_string(newGameId).c_str());
+                send_message(std::to_string(newGameId).c_str());
             }
 
             else if (cmdName == "GET_GAMES") {
@@ -161,7 +186,7 @@ void Client::execute_thread()
                     gamesList.pop_back();
                 }
 
-                sprintf(buffer, "%s", gamesList.c_str());
+                send_message(gamesList.c_str());
             }
 
             else if (cmdName == "JOIN") {
@@ -191,15 +216,57 @@ void Client::execute_thread()
                     cards.push_back(card);
                     cardListString += card + ",";
                 }
+                cardListString.pop_back();
 
                 send_message(cardListString.c_str());
-
-                // TODO vérifier que les deux messages sont reçus par le client
             }
 
             else if (strcmp(buffer, "USER_DETAILS") == 0) {}  // TODO nope
 
-            else if (strcmp(buffer, "PLAY_PUT_DOWN") == 0) {}
+            else if (cmdName == "PLAY_PUT_DOWN") {
+                Game *game = GamesList::GetInstance()->getGame(currentGameId);
+
+                // vérifier que le joueur a la carte
+                int cardI = cardIndex(cmdBody);
+                if (cardI == -1) {
+                    // return error : the player doesn't have the card
+                    send_message("card does not exist");
+                } else {
+                    // send_message(std::to_string(cardI).c_str());
+
+                    // Accepter n'importe quelle carte au tout début du jeu
+                    // TODO ajouter éventuellement des règles pour interdire certaines cartes (?)
+                    if (game->getLastCard() == "") {
+                        // On retire la carte de la main du joueur
+                        removeCardFromHand(cardI);
+
+                        // On pose la carte
+                        game->putDownCard(cmdBody);
+
+                        // On définit la couleur
+                        game->setCurrentColor(cmdBody);
+                    } else {
+                        // vérifier au cas par cas la légalité de l'action menée par le joueur
+                        if (!game->actionIsLegal(cmdBody)) {
+                            send_message("Action not legal");
+                        } else {
+                            moveWasSuccessful = true;
+                            removeCardFromHand(cardI);
+                            game->putDownCard(cmdBody);
+                            game->setCurrentColor(cmdBody);
+                        }
+                    }
+
+                    if (moveWasSuccessful) {
+                        // notifier tous les joueurs du nouvel état du jeu de carte (renvoyer la carte qui a été posée)
+                        std::string buf("New card;");
+                        buf.append(cmdBody);
+                        for (Client *client: game->getClients()) {
+                            client->send_message(buf.c_str());
+                        }
+                    }
+                }
+            }
 
             else if (strcmp(buffer, "PLAY_PICK") == 0) {
                 Game* game = GamesList::GetInstance()->getGame(currentGameId);
@@ -216,19 +283,19 @@ void Client::execute_thread()
 
             else if (strcmp(buffer, "ERROR") == 0) {} // TODO nope
 
-			else
-				sprintf(buffer, "%s is not recognized as a valid command", buffer);
+			else {
+                // sprintf(buffer, "%s is not recognized as a valid command", buffer);
+                Output::GetInstance()->print("Received an unrecognized command '", buffer, "'\n");
+                if (!send_message("Command not recognised")) {
+                    break;
+                }
+                // Output::GetInstance()->print(output_prefix, "Message \"", buffer, "\" send to client successfully.\n");
+            }
 
+            /*
 			if (!is_alive)
 				return;
-
-			// On envoie le buffer
-			Output::GetInstance()->print(output_prefix, "Sending message \"", buffer, "\" to client...\n");
-			if (!send_message(buffer)) {
-				break;
-			}
-
-			Output::GetInstance()->print(output_prefix, "Message \"", buffer, "\" send to client successfully.\n");
+             */
 		}
 	}
 
