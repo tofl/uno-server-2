@@ -39,6 +39,7 @@ Client::Client(int id, SOCKET socket, const int MAXDATASIZE) : ThreadedSocket(so
 Client::Client(int id, int socket, const int MAXDATASIZE) : ThreadedSocket(socket, false, MAXDATASIZE), id(id)
 {
 	buffer = new char[MAXDATASIZE];
+    signal(SIGPIPE, SIG_IGN);
 
     char numstr[21]; // enough to hold all numbers up to 64-bits
     sprintf(numstr, "%d", id);
@@ -60,7 +61,23 @@ bool Client::send_message(const char* buffer)
 	if (socket_ == 0 || !is_alive)
 		return false;
 
-	if (send(socket_, buffer, strlen(buffer), 0) == -1) {
+    int error = 0;
+    socklen_t len = sizeof (error);
+    int retval = getsockopt (socket_, SOL_SOCKET, SO_ERROR, &error, &len);
+
+    if (retval != 0) {
+        /* there was a problem getting the error code */
+        fprintf(stderr, "error getting socket error code: %s\n", strerror(retval));
+        return false; // TODO retirer le client de la liste de joueurs (?)
+    }
+
+    if (error != 0) {
+        /* socket has a non zero error status */
+        fprintf(stderr, "socket error: %s\n", strerror(error));
+        return false; // TODO retirer le client de la liste de joueurs (?)
+    }
+
+    if (send(socket_, buffer, strlen(buffer), 0) == -1) {
 		Output::GetInstance()->print_error(output_prefix, "Error while sending message to client ");
 		return false;
 	}
@@ -111,12 +128,6 @@ int Client::cardIndex(std::string cardName) {
 }
 
 void Client::removeCardFromHand(int cardIndex) {
-    /*
-    int randomIndex = rand() % availableCards_.size();
-    std::string returnedCard = availableCards_[randomIndex];
-    availableCards_.erase(availableCards_.begin() + randomIndex);
-    return returnedCard;
-     */
     cards.erase(cards.begin() + cardIndex);
 }
 
@@ -129,32 +140,31 @@ void Client::execute_thread()
 	Output::GetInstance()->print(output_prefix, "Thread client starts with id=", id, ".\n");
 
 	// Boucle infinie pour le client
-	while (1) {
+    while (1) {
 
-		if (socket_ == 0 || !is_alive)
-			return;
+        if (socket_ == 0 || !is_alive)
+            return;
 
-		// On attend un message du client
-		if ((length = recv_message()) == -1) {
-			break;
-		}
+        // On attend un message du client
+        if ((length = recv_message()) == -1) {
+            break;
+        }
 
-		if (socket_ == 0 || !is_alive)
-			return;
+        // if (socket_ == 0 || !is_alive)
+        //	return;
 
-		// Affichage du message
-		Output::GetInstance()->print(output_prefix, "Message received : ", buffer, "\n");
+        // Affichage du message
+        Output::GetInstance()->print(output_prefix, "Message received : ", buffer, "\n");
 
         // On considère que l'action menée est illégale jusqu'à preuve du contraire
         bool moveWasSuccessful = false;
 
-		if (strcmp(buffer, "DISCONNECT") == 0) {
-			break;
-		}
-		else {
-			// On recupere l'heure et la date
-			time(&time_value);
-			time_info = localtime(&time_value);
+        if (strcmp(buffer, "DISCONNECT") == 0) {
+            break;
+        } else {
+            // On recupere l'heure et la date
+            time(&time_value);
+            time_info = localtime(&time_value);
 
             std::string fullCmd(buffer);
             std::size_t sepPos = fullCmd.find(";");
@@ -162,19 +172,17 @@ void Client::execute_thread()
             std::string cmdBody;
             if (sepPos != std::string::npos) {
                 cmdName = fullCmd.substr(0, sepPos);
-                cmdBody = fullCmd.substr(sepPos+1);
+                cmdBody = fullCmd.substr(sepPos + 1);
             } else {
                 cmdName = fullCmd;
             }
 
-			// Traitement du message reçu
+            // Traitement du message reçu
             if (cmdName == "NEW_GAME") {
                 int newGameId = GamesList::GetInstance()->newGame();
-                sprintf(buffer, "%s", std::to_string(newGameId).c_str());
+                // sprintf(buffer, "%s", std::to_string(newGameId).c_str());
                 send_message(std::to_string(newGameId).c_str());
-            }
-
-            else if (cmdName == "GET_GAMES") {
+            } else if (cmdName == "GET_GAMES") {
                 // Get all games
                 std::string gamesList = "";
                 for (Game *game: GamesList::GetInstance()->getAllGames()) {
@@ -187,10 +195,8 @@ void Client::execute_thread()
                 }
 
                 send_message(gamesList.c_str());
-            }
-
-            else if (cmdName == "JOIN") {
-                Game* game = GamesList::GetInstance()->getGame(std::stoi(cmdBody));
+            } else if (cmdName == "JOIN") {
+                Game *game = GamesList::GetInstance()->getGame(std::stoi(cmdBody));
                 game->addPlayer(this);
                 currentGameId = game->id;
 
@@ -219,9 +225,7 @@ void Client::execute_thread()
                 cardListString.pop_back();
 
                 send_message(cardListString.c_str());
-            }
-
-            else if (strcmp(buffer, "USER_DETAILS") == 0) {}  // TODO nope
+            } else if (strcmp(buffer, "USER_DETAILS") == 0) {}  // TODO nope
 
             else if (cmdName == "PLAY_PUT_DOWN") {
                 Game *game = GamesList::GetInstance()->getGame(currentGameId);
@@ -266,14 +270,10 @@ void Client::execute_thread()
                         }
                     }
                 }
-            }
-
-            else if (strcmp(buffer, "PLAY_PICK") == 0) {
-                Game* game = GamesList::GetInstance()->getGame(currentGameId);
+            } else if (strcmp(buffer, "PLAY_PICK") == 0) {
+                Game *game = GamesList::GetInstance()->getGame(currentGameId);
                 game->pickRandomCard();
-            }
-
-            else if (strcmp(buffer, "PLAY_UNO") == 0) {}
+            } else if (strcmp(buffer, "PLAY_UNO") == 0) {}
 
             else if (strcmp(buffer, "PLAY_CONTRE_UNO") == 0) {}
 
@@ -283,21 +283,18 @@ void Client::execute_thread()
 
             else if (strcmp(buffer, "ERROR") == 0) {} // TODO nope
 
-			else {
+            else {
                 // sprintf(buffer, "%s is not recognized as a valid command", buffer);
                 Output::GetInstance()->print("Received an unrecognized command '", buffer, "'\n");
                 if (!send_message("Command not recognised")) {
                     break;
                 }
-                // Output::GetInstance()->print(output_prefix, "Message \"", buffer, "\" send to client successfully.\n");
             }
 
-            /*
-			if (!is_alive)
-				return;
-             */
-		}
-	}
+            if (socket_ == NULL || !is_alive)
+                return;
+        }
+    }
 
 	end_thread();
 }
