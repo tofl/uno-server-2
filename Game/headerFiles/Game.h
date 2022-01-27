@@ -21,6 +21,7 @@ public:
     std::string getCurrentColor();
     bool actionIsLegal(std::string);
     Client* getPlayer(int);
+    void removePlayer(int);
 
 private:
     std::vector<Client*> players_;

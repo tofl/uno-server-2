@@ -167,11 +167,16 @@ void Client::execute_thread()
         bool moveWasSuccessful = false;
 
         if (strcmp(buffer, "DISCONNECT") == 0) {
-            // TODO condition
             Game *game = GamesList::GetInstance()->getGame(currentGameId);
-            if (game != NULL && game->getClients().size() == 1) {
+
+            // Quitter la partie
+            game->removePlayer(id);
+
+            // Supprimer la partie s'il n'y a plus de joueur
+            if (game != NULL && game->getClients().size() == 0) {
                 GamesList::GetInstance()->removeGame(currentGameId);
             }
+            break;
         }
         else {
             // On recupere l'heure et la date

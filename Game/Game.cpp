@@ -183,3 +183,18 @@ Client* Game::getPlayer(int playerId) {
     }
     return NULL;
 }
+
+void Game::removePlayer(int playerId) {
+    // Récupérer la position du joueur dans la liste
+    int playerPosition;
+    int i = 0;
+
+    for (Client* cl : players_) {
+        if (cl->getId() == playerId) {
+            playerPosition = i;
+        }
+        i++;
+    }
+
+    players_.erase(players_.begin() + playerPosition);
+}
