@@ -195,7 +195,7 @@ void Client::execute_thread()
                 // Get all games
                 std::string gamesList = "";
                 for (Game *game: GamesList::GetInstance()->getAllGames()) {
-                    gamesList += std::to_string(game->id) + ",";
+                    gamesList += std::to_string(game->id) + "-" + std::to_string(game->getClients().size()) + ",";
                 }
                 if (gamesList == "") {
                     gamesList = "no game was found";
