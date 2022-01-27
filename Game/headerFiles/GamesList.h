@@ -22,6 +22,7 @@ public:
     std::vector<Game*> getAllGames();
     Game* getGame(int gameId);
     bool hasGame(int gameId);
+    void removeGame(int gameId);
 };
 
 

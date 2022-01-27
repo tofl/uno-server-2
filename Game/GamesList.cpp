@@ -49,3 +49,7 @@ Game* GamesList::getGame(int gameId) {
         }
     }
 }
+
+void GamesList::removeGame(int gameId) {
+    allGames_.erase(allGames_.begin() + gameId);
+}

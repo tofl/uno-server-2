@@ -44,7 +44,6 @@ public:
     int cardIndex(std::string);
     void removeCardFromHand(int);
     void addCardToHand(std::string);
-    std::string formatCardsToUserResponse();
     int getId();
 
 private:

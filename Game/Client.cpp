@@ -167,8 +167,13 @@ void Client::execute_thread()
         bool moveWasSuccessful = false;
 
         if (strcmp(buffer, "DISCONNECT") == 0) {
-            break;
-        } else {
+            // TODO condition
+            Game *game = GamesList::GetInstance()->getGame(currentGameId);
+            if (game != NULL && game->getClients().size() == 1) {
+                GamesList::GetInstance()->removeGame(currentGameId);
+            }
+        }
+        else {
             // On recupere l'heure et la date
             time(&time_value);
             time_info = localtime(&time_value);
