@@ -56,6 +56,27 @@ Client::~Client()
 	free(output_prefix);
 }
 
+int Client::getId() {
+    return id;
+}
+
+void Client::addCardToHand(std::string card) {
+    cards.push_back(card);
+}
+
+std::string Client::formatCardsToUserResponse() {
+    std::string cardListString = "";
+    for (std::string card : cards) {
+        cardListString += card + ",";
+    }
+
+    if (cardListString.back() == ',') {
+        cardListString.pop_back();
+    }
+
+    return cardListString;
+}
+
 bool Client::send_message(const char* buffer)
 {
 	if (socket_ == 0 || !is_alive)
@@ -150,9 +171,6 @@ void Client::execute_thread()
             break;
         }
 
-        // if (socket_ == 0 || !is_alive)
-        //	return;
-
         // Affichage du message
         Output::GetInstance()->print(output_prefix, "Message received : ", buffer, "\n");
 
@@ -182,7 +200,9 @@ void Client::execute_thread()
                 int newGameId = GamesList::GetInstance()->newGame();
                 // sprintf(buffer, "%s", std::to_string(newGameId).c_str());
                 send_message(std::to_string(newGameId).c_str());
-            } else if (cmdName == "GET_GAMES") {
+            }
+
+            else if (cmdName == "GET_GAMES") {
                 // Get all games
                 std::string gamesList = "";
                 for (Game *game: GamesList::GetInstance()->getAllGames()) {
@@ -195,7 +215,9 @@ void Client::execute_thread()
                 }
 
                 send_message(gamesList.c_str());
-            } else if (cmdName == "JOIN") {
+            }
+
+            else if (cmdName == "JOIN") {
                 Game *game = GamesList::GetInstance()->getGame(std::stoi(cmdBody));
                 game->addPlayer(this);
                 currentGameId = game->id;
@@ -216,16 +238,14 @@ void Client::execute_thread()
                 }
 
                 // Sélectionner 7 cartes
-                std::string cardListString = "";
                 for (int i = 0; i < 7; i++) {
                     std::string card = game->pickRandomCard();
                     cards.push_back(card);
-                    cardListString += card + ",";
                 }
-                cardListString.pop_back();
 
+                std:: string cardListString = formatCardsToUserResponse();
                 send_message(cardListString.c_str());
-            } else if (strcmp(buffer, "USER_DETAILS") == 0) {}  // TODO nope
+            }
 
             else if (cmdName == "PLAY_PUT_DOWN") {
                 Game *game = GamesList::GetInstance()->getGame(currentGameId);
@@ -236,8 +256,6 @@ void Client::execute_thread()
                     // return error : the player doesn't have the card
                     send_message("card does not exist");
                 } else {
-                    // send_message(std::to_string(cardI).c_str());
-
                     // Accepter n'importe quelle carte au tout début du jeu
                     // TODO ajouter éventuellement des règles pour interdire certaines cartes (?)
                     if (game->getLastCard() == "") {
@@ -258,6 +276,7 @@ void Client::execute_thread()
                             removeCardFromHand(cardI);
                             game->putDownCard(cmdBody);
                             game->setCurrentColor(cmdBody);
+                            send_message("Successful");
                         }
                     }
 
@@ -270,18 +289,38 @@ void Client::execute_thread()
                         }
                     }
                 }
-            } else if (strcmp(buffer, "PLAY_PICK") == 0) {
+            }
+
+            else if (strcmp(buffer, "PLAY_PICK") == 0) {
                 Game *game = GamesList::GetInstance()->getGame(currentGameId);
                 game->pickRandomCard();
-            } else if (strcmp(buffer, "PLAY_UNO") == 0) {}
+            }
 
-            else if (strcmp(buffer, "PLAY_CONTRE_UNO") == 0) {}
+            // TODO finir ou supprimer
+            else if (strcmp(buffer, "PLAY_UNO") == 0) {
+                if (cards.size() == 1) {
+                    send_message("Yes!");
+                } else {
+                    send_message("No!");
+                }
+            }
 
-            else if (strcmp(buffer, "RESPONSE_UNO") == 0) {} // TODO nope
+            else if (strcmp(buffer, "PLAY_CONTRE_UNO") == 0) {
+                Game *game = GamesList::GetInstance()->getGame(currentGameId);
 
-            else if (strcmp(buffer, "GAME_STATUS") == 0) {} // TODO nope
+                Client* targetedPlayer = game->getPlayer(std::stoi(cmdBody));
 
-            else if (strcmp(buffer, "ERROR") == 0) {} // TODO nope
+                std::string card1 = game->pickRandomCard();
+                std::string card2 = game->pickRandomCard();
+                if (targetedPlayer->cards.size() == 1) {
+                    targetedPlayer->addCardToHand(card1);
+                    targetedPlayer->addCardToHand(card2);
+                }
+            }
+
+            else if (cmdName == "GET_CARDS_LIST") {
+                send_message(formatCardsToUserResponse().c_str());
+            }
 
             else {
                 // sprintf(buffer, "%s is not recognized as a valid command", buffer);

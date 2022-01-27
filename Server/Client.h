@@ -42,7 +42,10 @@ public:
 	~Client();
 	void end_thread();
     int cardIndex(std::string);
-    void removeCardFromHand(int); // TODO implement
+    void removeCardFromHand(int);
+    void addCardToHand(std::string);
+    std::string formatCardsToUserResponse();
+    int getId();
 
 private:
     int currentGameId;

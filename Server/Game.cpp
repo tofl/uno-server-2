@@ -161,6 +161,7 @@ std::string Game::getCurrentColor() {
 }
 
 bool Game::actionIsLegal(std::string cardName) {
+    // TODO implémenter complètement
     std::string cardColor = getCardColor(cardName);
 
     // La carte n'a pas de couleur, elle peut être jouée à tout moment (?)
@@ -172,4 +173,13 @@ bool Game::actionIsLegal(std::string cardName) {
         return true;
     }
     return false;
+}
+
+Client* Game::getPlayer(int playerId) {
+    for (Client* c : players_) {
+        if (c->getId() == playerId) {
+            return c;
+        }
+    }
+    return NULL;
 }

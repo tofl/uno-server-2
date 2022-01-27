@@ -20,6 +20,7 @@ public:
     std::string getCardColor(std::string);
     std::string getCurrentColor();
     bool actionIsLegal(std::string);
+    Client* getPlayer(int);
 
 private:
     std::vector<Client*> players_;
