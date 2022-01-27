@@ -18,8 +18,8 @@
 #include <arpa/inet.h>
 #endif
 #include <thread>
-#include "ThreadedSocket.h"
-#include "Output.h"
+#include "headerFiles/ThreadedSocket.h"
+#include "headerFiles/Output.h"
 
 #ifdef _WIN32
 ThreadedSocket::ThreadedSocket(SOCKET socket, bool init_winsocks, const int MAXDATASIZE) :  socket_(socket), init_winsocks(init_winsocks), MAXDATASIZE(MAXDATASIZE), is_alive(true), output_prefix(NULL)

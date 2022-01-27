@@ -19,10 +19,11 @@
 #include <iostream>
 #include <thread>
 #include <string>
-#include "ThreadedSocket.h"
-#include "Client.h"
-#include "Output.h"
-#include "GamesList.h"
+#include "headerFiles/ThreadedSocket.h"
+#include "headerFiles/Client.h"
+#include "headerFiles/Output.h"
+#include "headerFiles/GamesList.h"
+#include "headerFiles/utils.h"
 
 #ifdef _WIN32
 Client::Client(int id, SOCKET socket, const int MAXDATASIZE) : ThreadedSocket(socket, false, MAXDATASIZE), id(id)
@@ -64,19 +65,6 @@ void Client::addCardToHand(std::string card) {
     cards.push_back(card);
 }
 
-std::string Client::formatCardsToUserResponse() {
-    std::string cardListString = "";
-    for (std::string card : cards) {
-        cardListString += card + ",";
-    }
-
-    if (cardListString.back() == ',') {
-        cardListString.pop_back();
-    }
-
-    return cardListString;
-}
-
 bool Client::send_message(const char* buffer)
 {
 	if (socket_ == 0 || !is_alive)
@@ -105,6 +93,7 @@ bool Client::send_message(const char* buffer)
 
 	return true;
 }
+
 int Client::recv_message()
 {
 	if (socket_ == 0 || !is_alive)
@@ -243,7 +232,7 @@ void Client::execute_thread()
                     cards.push_back(card);
                 }
 
-                std:: string cardListString = formatCardsToUserResponse();
+                std::string cardListString = utils::formatCardsToUserResponse(cards);
                 send_message(cardListString.c_str());
             }
 
@@ -319,7 +308,7 @@ void Client::execute_thread()
             }
 
             else if (cmdName == "GET_CARDS_LIST") {
-                send_message(formatCardsToUserResponse().c_str());
+                send_message(utils::formatCardsToUserResponse(cards).c_str());
             }
 
             else {

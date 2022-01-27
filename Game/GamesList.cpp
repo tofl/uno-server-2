@@ -1,5 +1,5 @@
-#include "GamesList.h"
-#include "Game.h"
+#include "headerFiles/GamesList.h"
+#include "headerFiles/Game.h"
 
 GamesList* GamesList::singleton_ = nullptr;
 

@@ -6,22 +6,24 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(Server)
 
 add_executable(sockets_with_thread
-        Server/Client.cpp
-        Server/Client.h
+        Game/Client.cpp
+        Game/headerFiles/Client.h
         Server/EndPoint.cpp
-        Server/EndPoint.h
+        Server/headerFiles/EndPoint.h
         Server/Ouput.cpp
-        Server/Output.h
+        Server/headerFiles/Output.h
         Server/Semaphore.cpp
-        Server/Semaphore.h
+        Server/headerFiles/Semaphore.h
         Server/Server.cpp
         Server/StoppableServer.cpp
         Server/ThreadedSocket.cpp
-        Server/ThreadedSocket.h
-        Server/Client.cpp
-        Server/Client.h
-        Server/GamesList.cpp
-        Server/GamesList.h
-        Server/Game.cpp
-        Server/Game.h
+        Server/headerFiles/ThreadedSocket.h
+        Game/Client.cpp
+        Game/headerFiles/Client.h
+        Game/GamesList.cpp
+        Game/headerFiles/GamesList.h
+        Game/Game.cpp
+        Game/headerFiles/Game.h
+        Game/utils.cpp
+        Game/headerFiles/utils.h
         )

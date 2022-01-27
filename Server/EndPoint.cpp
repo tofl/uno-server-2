@@ -17,10 +17,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #endif
-#include "ThreadedSocket.h"
-#include "EndPoint.h"
-#include "Client.h"
-#include "Output.h"
+#include "headerFiles/ThreadedSocket.h"
+#include "headerFiles/EndPoint.h"
+#include "../Game/headerFiles/Client.h"
+#include "headerFiles/Output.h"
 
 EndPoint::EndPoint(int connection_port, const int BACKLOG, const int MAXDATASIZE, bool init_winsocks) : ThreadedSocket(NULL, init_winsocks, MAXDATASIZE), connection_port(connection_port), BACKLOG(BACKLOG)
 {

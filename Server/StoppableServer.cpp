@@ -7,9 +7,9 @@
 #include <iostream>
 #include <vector>
 
-#include "Output.h"
-#include "Client.h"
-#include "EndPoint.h"
+#include "headerFiles/Output.h"
+#include "../Game/headerFiles/Client.h"
+#include "headerFiles/EndPoint.h"
 
 
 // Valeurs constantes utilis�es dans le programme

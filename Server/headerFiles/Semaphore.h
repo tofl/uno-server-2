@@ -13,7 +13,7 @@ private:
    std::condition_variable condition_;
    unsigned int count_;
 
-public:  
+public:
    CSemaphore(int c = 0);
 
    void reset();

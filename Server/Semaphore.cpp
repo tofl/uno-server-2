@@ -1,4 +1,4 @@
-#include "Semaphore.h"
+#include "headerFiles/Semaphore.h"
 
 CSemaphore::CSemaphore(int c) : count_(c)
 {

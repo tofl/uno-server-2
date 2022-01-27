@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "headerFiles/Game.h"
 
 Game::Game(int gameId) {
     id = gameId;

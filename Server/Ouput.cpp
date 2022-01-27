@@ -1,7 +1,7 @@
 
 #include <iostream>
-#include "Semaphore.h"
-#include "Output.h"
+#include "headerFiles/Semaphore.h"
+#include "headerFiles/Output.h"
 
 Output* Output::singleton_ = nullptr;
 

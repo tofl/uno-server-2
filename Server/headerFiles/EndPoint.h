@@ -20,8 +20,8 @@
 #include <thread>
 #include <vector>
 #include "ThreadedSocket.h"
-#include "Client.h"
-#include "Game.h"
+#include "../../Game/headerFiles/Client.h"
+#include "../../Game/headerFiles/Game.h"
 
 #ifndef ENDPOINT_H
 #define ENDPOINT_H
