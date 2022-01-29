@@ -170,7 +170,9 @@ void Client::execute_thread()
             Game *game = GamesList::GetInstance()->getGame(currentGameId);
 
             // Quitter la partie
-            game->removePlayer(id);
+            if (currentGameId) {
+                game->removePlayer(id);
+            }
 
             // Supprimer la partie s'il n'y a plus de joueur
             if (game != NULL && game->getClients().size() == 0) {
