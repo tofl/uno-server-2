@@ -215,7 +215,6 @@ void Client::execute_thread()
                 int newGameId = GamesList::GetInstance()->newGame();
                 // sprintf(buffer, "%s", std::to_string(newGameId).c_str());
                 send_message(std::to_string(newGameId).c_str());
-                send_message("end");
             }
 
             else if (cmdName == "GET_GAMES") {
@@ -231,7 +230,6 @@ void Client::execute_thread()
                 }
 
                 send_message(("games list" + gamesList).c_str());
-                send_message("end");
             }
 
             else if (cmdName == "CURRENT_GAME_INFO") {
@@ -255,7 +253,6 @@ void Client::execute_thread()
 
                     send_message(("clients and nb cards list:" + returnedList).c_str());
                     send_message(("current card:" + game->getLastCard()).c_str());
-                    send_message("end");
                 }
             }
 
@@ -287,7 +284,6 @@ void Client::execute_thread()
 
                 std::string cardListString = utils::formatCardsToUserResponse(cards);
                 send_message(("cards list:" + cardListString).c_str());
-                send_message("end");
             }
 
             else if (cmdName == "PLAY_PUT_DOWN") {
@@ -340,7 +336,6 @@ void Client::execute_thread()
                             client->send_message(buf.c_str());
                             client->send_message(("next player:" + std::to_string(nextPlayer->id)).c_str());
                         }
-                        send_message("end");
 
                         game->setCurrentPlayer(nextPlayer);
                     }
@@ -358,7 +353,6 @@ void Client::execute_thread()
                 for (Client *client: game->getClients()) {
                     client->send_message(("next player:" + std::to_string(nextPlayer->id)).c_str());
                 }
-                send_message("end");
 
                 game->setCurrentPlayer(nextPlayer);
             }
@@ -370,7 +364,6 @@ void Client::execute_thread()
                 } else {
                     send_message("incorrect");
                 }
-                send_message("end");
             }
 
             else if (strcmp(buffer, "PLAY_CONTRE_UNO") == 0) {
@@ -384,12 +377,14 @@ void Client::execute_thread()
                     targetedPlayer->addCardToHand(card1);
                     targetedPlayer->addCardToHand(card2);
                 }
-                send_message("end");
             }
 
             else if (cmdName == "GET_CARDS_LIST") {
                 send_message(("cards list:" + utils::formatCardsToUserResponse(cards)).c_str());
-                send_message("end");
+            }
+
+            else if (cmdName == "EMPTY") {
+                send_message("");
             }
 
             else {
@@ -398,7 +393,6 @@ void Client::execute_thread()
                 if (!send_message("Command not recognised")) {
                     break;
                 }
-                send_message("end");
             }
 
             if (socket_ == NULL || !is_alive)
