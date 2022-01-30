@@ -229,7 +229,7 @@ void Client::execute_thread()
                     gamesList.pop_back();
                 }
 
-                send_message(("games list" + gamesList).c_str());
+                send_message(("games list:" + gamesList).c_str());
             }
 
             else if (cmdName == "CURRENT_GAME_INFO") {
