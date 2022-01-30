@@ -119,6 +119,7 @@ Game::Game(int gameId) {
 
     lastCard_ = randomCard;
     currentColor_ = getCardColor(randomCard);
+    currentNumber_ = getCardNumber(randomCard);
 }
 
 void Game::addPlayer(Client *client) {
@@ -163,6 +164,33 @@ void Game::setCurrentColor(std::string cardName) {
     currentColor_ = getCardColor(cardName);
 }
 
+std::string Game::getCardNumber(std::string cardName) {
+    std::string cardColor = cardName.substr(2, cardName.length() - 2);
+
+    std::vector<std::string> availableNumbers = {
+        "Zero",
+        "One",
+        "Two",
+        "Three",
+        "Four",
+        "Five",
+        "Six",
+        "Seven",
+        "Eight",
+        "Nine"
+    };
+
+    if (std::count(availableNumbers.begin(), availableNumbers.end(), cardColor)) {
+        return cardColor;
+    } else {
+        return "";
+    }
+}
+
+std::string Game::setCurrentNumber(std::string cardNumber) {
+    currentNumber_ = cardNumber;
+}
+
 std::string Game::getCurrentColor() {
     return currentColor_;
 }
@@ -173,26 +201,24 @@ bool Game::actionIsLegal(std::string cardName) {
         isColorCard = true;
     }
 
+    bool colorsMatch = true;
+    bool numbersMatch = true;
+
+    // Check if colors match
     if (currentColor_ != "" && isColorCard && getCardColor(cardName) != currentColor_) {
+        colorsMatch = false;
+    }
+
+    // Check if numbers match
+    if (currentNumber_ != "" && getCardNumber(cardName) != "" && currentNumber_ != getCardNumber(cardName)) {
+        numbersMatch = false;
+    }
+
+    if (colorsMatch || numbersMatch) {
+        return true;
+    } else {
         return false;
     }
-
-    return true;
-
-    /*
-    // TODO implémenter complètement
-    std::string cardColor = getCardColor(cardName);
-
-    // La carte n'a pas de couleur, elle peut être jouée à tout moment (?)
-    if (cardColor == "") {
-        return true;
-    }
-
-    if (cardColor == currentColor_) {
-        return true;
-    }
-    return false;
-     */
 }
 
 Client* Game::getPlayer(int playerId) {

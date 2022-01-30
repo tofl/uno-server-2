@@ -19,6 +19,8 @@ public:
     void setCurrentColor(std::string);
     std::string getCardColor(std::string);
     std::string getCurrentColor();
+    std::string getCardNumber(std::string);
+    std::string setCurrentNumber(std::string);
     bool actionIsLegal(std::string);
     Client* getPlayer(int);
     void removePlayer(int);
@@ -31,6 +33,7 @@ private:
     std::vector<std::string> availableCards_;
     std::string lastCard_;
     std::string currentColor_;
+    std::string currentNumber_;
     Client* currentPlayer_;
 };
 
