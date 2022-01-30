@@ -105,14 +105,14 @@ Game::Game(int gameId) {
         "R_REVERSE",
         "B_REVERSE",
         "B_REVERSE",
-        "ChangeColor", // Permet de choisir la couleur TODO peut être que la couleur choisie pourrait être annotée au nom de la carte (style Y_ChangeColor pour choisir du yellow)
-        "ChangeColor",
-        "ChangeColor",
-        "ChangeColor",
-        "DrawFour", // Choisir la couleur et oblige le joueur suivant à piocher 4 cartes
-        "DrawFour",
-        "DrawFour",
-        "DrawFour"
+        "None_ChangeColor", // Permet de choisir la couleur TODO peut être que la couleur choisie pourrait être annotée au nom de la carte (style Y_ChangeColor pour choisir du yellow)
+        "None_ChangeColor",
+        "None_ChangeColor",
+        "None_ChangeColor",
+        "None_DrawFour", // Choisir la couleur et oblige le joueur suivant à piocher 4 cartes
+        "None_DrawFour",
+        "None_DrawFour",
+        "None_DrawFour"
     };
 
     std::string randomCard = pickRandomCard();
