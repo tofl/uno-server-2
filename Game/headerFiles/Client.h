@@ -46,6 +46,7 @@ public:
     void addCardToHand(std::string);
     int getId();
     bool leaveGameOnDisconnect();
+    std::vector<std::string> getCards();
 
 private:
     int currentGameId;

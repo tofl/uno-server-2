@@ -129,6 +129,10 @@ void Client::end_thread()
 	ThreadedSocket::end_thread();
 }
 
+std::vector<std::string> Client::getCards() {
+    return cards;
+}
+
 int Client::cardIndex(std::string cardName) {
     int cardIndex = -1;
     for (int i = 0; i < cards.size(); i++) {
@@ -226,6 +230,29 @@ void Client::execute_thread()
                 }
 
                 send_message(gamesList.c_str());
+            }
+
+            else if (cmdName == "CURRENT_GAME_INFO") {
+                if (!currentGameId) {
+                    send_message("you must join a game");
+                } else {
+                    Game *game = GamesList::GetInstance()->getGame(currentGameId);
+                    std::vector<Client*> clients = game->getClients();
+
+                    std::string returnedList;
+                    for (Client* client : clients) {
+                        std::string clientIdAndCards = std::to_string(client->id) + "-" + std::to_string(client->getCards().size()) + ",";
+                        returnedList += clientIdAndCards;
+                    }
+
+                    if (returnedList == "") {
+                        returnedList = "no players were found";
+                    } else {
+                        returnedList.pop_back();
+                    }
+
+                    send_message(returnedList.c_str());
+                }
             }
 
             else if (cmdName == "JOIN") {
