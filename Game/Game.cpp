@@ -97,7 +97,7 @@ Game::Game(int gameId) {
         "R_SKIP",
         "B_SKIP",
         "B_SKIP",
-        "G_REVERSE", // Inverstion du sens
+        "G_REVERSE", // Invertion du sens
         "G_REVERSE",
         "Y_REVERSE",
         "Y_REVERSE",
@@ -105,7 +105,7 @@ Game::Game(int gameId) {
         "R_REVERSE",
         "B_REVERSE",
         "B_REVERSE",
-        "ChangeColor", // Permet de choisir la couleur TODO peut être que la couleur choisie pourrait être annotée au nom de la carte (style Y_JOKER pour choisir du yellow)
+        "ChangeColor", // Permet de choisir la couleur TODO peut être que la couleur choisie pourrait être annotée au nom de la carte (style Y_ChangeColor pour choisir du yellow)
         "ChangeColor",
         "ChangeColor",
         "ChangeColor",
@@ -115,7 +115,7 @@ Game::Game(int gameId) {
         "DrawFour"
     };
 
-    lastCard_ = "";
+    lastCard_ = pickRandomCard();
     currentColor_ = "";
 }
 
@@ -166,6 +166,7 @@ std::string Game::getCurrentColor() {
 }
 
 bool Game::actionIsLegal(std::string cardName) {
+    /*
     // TODO implémenter complètement
     std::string cardColor = getCardColor(cardName);
 
@@ -178,6 +179,7 @@ bool Game::actionIsLegal(std::string cardName) {
         return true;
     }
     return false;
+     */
 }
 
 Client* Game::getPlayer(int playerId) {

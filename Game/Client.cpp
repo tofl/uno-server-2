@@ -252,6 +252,7 @@ void Client::execute_thread()
                     }
 
                     send_message(returnedList.c_str());
+                    send_message(("current card:" + game->getLastCard()).c_str());
                 }
             }
 
@@ -272,7 +273,7 @@ void Client::execute_thread()
 
                 // On envoie à chaque client la liste de nouveaux joueurs et leurs cartes
                 for (Client *client: game->getClients()) {
-                    client->send_message(clientList.c_str());
+                    client->send_message(("client list:" + clientList).c_str());
                 }
 
                 // Sélectionner 7 cartes
@@ -282,7 +283,7 @@ void Client::execute_thread()
                 }
 
                 std::string cardListString = utils::formatCardsToUserResponse(cards);
-                send_message(cardListString.c_str());
+                send_message(("cards list:" + cardListString).c_str());
             }
 
             else if (cmdName == "PLAY_PUT_DOWN") {
@@ -319,7 +320,7 @@ void Client::execute_thread()
                             removeCardFromHand(cardI);
                             game->putDownCard(cmdBody);
                             game->setCurrentColor(cmdBody);
-                            send_message("Successful");
+                            send_message("successful");
                         }
                     }
 
@@ -369,7 +370,7 @@ void Client::execute_thread()
             }
 
             else if (cmdName == "GET_CARDS_LIST") {
-                send_message(utils::formatCardsToUserResponse(cards).c_str());
+                send_message(("cards list:" + utils::formatCardsToUserResponse(cards)).c_str());
             }
 
             else {
