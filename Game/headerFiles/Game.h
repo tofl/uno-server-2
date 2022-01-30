@@ -5,8 +5,6 @@
 #include "Client.h"
 
 
-// Suit le paterne "Observer" (https://refactoring.guru/design-patterns/observer)
-
 class Game {
 public:
     Game(int gameId);

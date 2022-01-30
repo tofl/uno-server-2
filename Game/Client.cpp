@@ -357,7 +357,6 @@ void Client::execute_thread()
                 game->setCurrentPlayer(nextPlayer);
             }
 
-            // TODO finir ou supprimer
             else if (strcmp(buffer, "PLAY_UNO") == 0) {
                 if (cards.size() == 1) {
                     send_message("correct");
