@@ -117,8 +117,11 @@ int Client::recv_message()
 
 void Client::end_thread()
 {
-	if (!is_alive)
-		return;
+	if (!is_alive) {
+        return;
+    }
+
+    leaveGameOnDisconnect();
 
 	// Sending close connection to client
 	send_message("CONNECTION_CLOSED");
@@ -139,6 +142,23 @@ int Client::cardIndex(std::string cardName) {
 
 void Client::removeCardFromHand(int cardIndex) {
     cards.erase(cards.begin() + cardIndex);
+}
+
+bool Client::leaveGameOnDisconnect() {
+    if (currentGameId) {
+        Game *game = GamesList::GetInstance()->getGame(currentGameId);
+
+        // Quitter la partie
+        game->removePlayer(id);
+        Output::GetInstance()->print(output_prefix, "Removing client from game.\n");
+
+        // Supprimer la partie s'il n'y a plus de joueur
+        if (game != NULL && game->getClients().size() == 0) {
+            GamesList::GetInstance()->removeGame(currentGameId);
+        }
+        return true;
+    }
+    return false;
 }
 
 void Client::execute_thread()
@@ -167,17 +187,7 @@ void Client::execute_thread()
         bool moveWasSuccessful = false;
 
         if (strcmp(buffer, "DISCONNECT") == 0) {
-            Game *game = GamesList::GetInstance()->getGame(currentGameId);
-
-            // Quitter la partie
-            if (currentGameId) {
-                game->removePlayer(id);
-            }
-
-            // Supprimer la partie s'il n'y a plus de joueur
-            if (game != NULL && game->getClients().size() == 0) {
-                GamesList::GetInstance()->removeGame(currentGameId);
-            }
+            leaveGameOnDisconnect();
             break;
         }
         else {

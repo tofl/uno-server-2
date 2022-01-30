@@ -22,7 +22,7 @@ GamesList::~GamesList() {
 }
 
 int GamesList::newGame() {
-    int newId = allGames_.size();
+    int newId = allGames_.size() + 1;
     Game* newGame = new Game(newId);
     allGames_.insert(allGames_.end(), newGame);
     return newId;
@@ -51,5 +51,5 @@ Game* GamesList::getGame(int gameId) {
 }
 
 void GamesList::removeGame(int gameId) {
-    allGames_.erase(allGames_.begin() + gameId);
+    allGames_.erase(allGames_.begin() + gameId - 1);
 }

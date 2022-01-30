@@ -45,6 +45,7 @@ public:
     void removeCardFromHand(int);
     void addCardToHand(std::string);
     int getId();
+    bool leaveGameOnDisconnect();
 
 private:
     int currentGameId;
