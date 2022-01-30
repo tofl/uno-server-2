@@ -288,9 +288,12 @@ void Client::execute_thread()
             else if (cmdName == "PLAY_PUT_DOWN") {
                 Game *game = GamesList::GetInstance()->getGame(currentGameId);
 
-                // vérifier que le joueur a la carte
                 int cardI = cardIndex(cmdBody);
-                if (cardI == -1) {
+
+                // Vérifier que c'est au tour du joueur de jouer
+                if (game->getCurrentPlayer()->getId() != id) {
+                    send_message("not your turn to play");
+                } else if (cardI == -1) { // vérifier que le joueur a la carte
                     // return error : the player doesn't have the card
                     send_message("card does not exist");
                 } else {
@@ -305,6 +308,8 @@ void Client::execute_thread()
 
                         // On définit la couleur
                         game->setCurrentColor(cmdBody);
+
+                        moveWasSuccessful = true;
                     } else {
                         // vérifier au cas par cas la légalité de l'action menée par le joueur
                         if (!game->actionIsLegal(cmdBody)) {
@@ -322,9 +327,16 @@ void Client::execute_thread()
                         // notifier tous les joueurs du nouvel état du jeu de carte (renvoyer la carte qui a été posée)
                         std::string buf("New card;");
                         buf.append(cmdBody);
+
+                        // Déterminer la prochain joueur à jouer
+                        Client* nextPlayer = game->getNextPlayer();
+
                         for (Client *client: game->getClients()) {
                             client->send_message(buf.c_str());
+                            client->send_message(("next player:" + std::to_string(nextPlayer->id)).c_str());
                         }
+
+                        game->setCurrentPlayer(nextPlayer);
                     }
                 }
             }

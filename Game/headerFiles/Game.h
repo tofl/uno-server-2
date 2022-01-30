@@ -22,12 +22,16 @@ public:
     bool actionIsLegal(std::string);
     Client* getPlayer(int);
     void removePlayer(int);
+    void setCurrentPlayer(Client*);
+    Client* getCurrentPlayer();
+    Client* getNextPlayer();
 
 private:
     std::vector<Client*> players_;
     std::vector<std::string> availableCards_;
     std::string lastCard_;
     std::string currentColor_;
+    Client* currentPlayer_;
 };
 
 #endif //SOCKETS_WITH_THREAD_GAME_H

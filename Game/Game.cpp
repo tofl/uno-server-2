@@ -121,6 +121,11 @@ Game::Game(int gameId) {
 
 void Game::addPlayer(Client *client) {
     players_.insert(players_.end(), client);
+
+    // Le premier joueur à rejoindre la partie commence à jouer
+    if (players_.size() == 1) {
+        currentPlayer_ = players_[0];
+    }
 }
 
 std::vector<Client*> Game::getClients() {
@@ -197,4 +202,32 @@ void Game::removePlayer(int playerId) {
     }
 
     players_.erase(players_.begin() + playerPosition);
+}
+
+void Game::setCurrentPlayer(Client* client) {
+    currentPlayer_ = client;
+}
+
+Client* Game::getCurrentPlayer() {
+    return currentPlayer_;
+}
+
+Client* Game::getNextPlayer() {
+    // Récupérer la position (index) du joueur actuel dans la liste des joueurs
+    int playerPosition;
+    int i = 0;
+    for (Client* player : players_) {
+        if (currentPlayer_->getId() == player->getId()) {
+            playerPosition = i;
+        }
+        i++;
+    }
+
+    if (playerPosition == players_.size() - 1) {
+        playerPosition = 0;
+    } else {
+        playerPosition++;
+    }
+
+    return players_[playerPosition];
 }
