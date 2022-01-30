@@ -366,9 +366,9 @@ void Client::execute_thread()
             // TODO finir ou supprimer
             else if (strcmp(buffer, "PLAY_UNO") == 0) {
                 if (cards.size() == 1) {
-                    send_message("Yes!");
+                    send_message("correct");
                 } else {
-                    send_message("No!");
+                    send_message("incorrect");
                 }
                 send_message("end");
             }
