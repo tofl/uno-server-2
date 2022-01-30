@@ -229,7 +229,7 @@ void Client::execute_thread()
                     gamesList.pop_back();
                 }
 
-                send_message(gamesList.c_str());
+                send_message(("games list" + gamesList).c_str());
             }
 
             else if (cmdName == "CURRENT_GAME_INFO") {
@@ -251,7 +251,7 @@ void Client::execute_thread()
                         returnedList.pop_back();
                     }
 
-                    send_message(returnedList.c_str());
+                    send_message(("clients and nb cards list:" + returnedList).c_str());
                     send_message(("current card:" + game->getLastCard()).c_str());
                 }
             }
@@ -326,7 +326,7 @@ void Client::execute_thread()
 
                     if (moveWasSuccessful) {
                         // notifier tous les joueurs du nouvel état du jeu de carte (renvoyer la carte qui a été posée)
-                        std::string buf("New card;");
+                        std::string buf("new card:");
                         buf.append(cmdBody);
 
                         // Déterminer la prochain joueur à jouer
@@ -344,7 +344,17 @@ void Client::execute_thread()
 
             else if (strcmp(buffer, "PLAY_PICK") == 0) {
                 Game *game = GamesList::GetInstance()->getGame(currentGameId);
-                game->pickRandomCard();
+                std::string newCard = game->pickRandomCard();
+                cards.push_back(newCard);
+
+                // On passe au joueur suivant
+                Client* nextPlayer = game->getNextPlayer();
+
+                for (Client *client: game->getClients()) {
+                    client->send_message(("next player:" + std::to_string(nextPlayer->id)).c_str());
+                }
+
+                game->setCurrentPlayer(nextPlayer);
             }
 
             // TODO finir ou supprimer

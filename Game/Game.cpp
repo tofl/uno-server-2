@@ -115,8 +115,10 @@ Game::Game(int gameId) {
         "DrawFour"
     };
 
-    lastCard_ = pickRandomCard();
-    currentColor_ = "";
+    std::string randomCard = pickRandomCard();
+
+    lastCard_ = randomCard;
+    currentColor_ = getCardColor(randomCard);
 }
 
 void Game::addPlayer(Client *client) {
@@ -166,6 +168,17 @@ std::string Game::getCurrentColor() {
 }
 
 bool Game::actionIsLegal(std::string cardName) {
+    bool isColorCard = false;
+    if (getCardColor(cardName) != "") {
+        isColorCard = true;
+    }
+
+    if (currentColor_ != "" && isColorCard && getCardColor(cardName) != currentColor_) {
+        return false;
+    }
+
+    return true;
+
     /*
     // TODO implémenter complètement
     std::string cardColor = getCardColor(cardName);
